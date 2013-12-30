@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 
-#include "sudoku99.h"
+#include "sudoku99.hpp"
 
 using namespace sudoku;
 

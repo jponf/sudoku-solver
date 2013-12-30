@@ -1,6 +1,7 @@
-#include <exception>
+#include <string>
+#include <stdexcept>
 
-#include "sudoku99.h"
+#include "sudoku99.hpp"
 #include "lib/picosat.h"
 
 namespace sudoku
@@ -13,7 +14,7 @@ namespace sudoku
     const int Sudoku99::NUM_COLUMNS = 9;
 
     // Constructor
-    Sudoku99::Sudoku99() 
+    Sudoku99::Sudoku99()
         : grid_(NUM_ROWS, std::vector<int>(NUM_COLUMNS, UNDEFINED_VALUE)),
           rcv_lit_mapping_(),
           lit_rcv_mapping_(),
@@ -23,13 +24,15 @@ namespace sudoku
     // Set cell value
     void Sudoku99::setValue(int row, int column, int value)
     {
-        // if (row < 0 || row >= NUM_COLUMNS)
-        //     throw std::out_of_range("The row must be in the range[0, 9)");
-        // if (column < 0 || column >= NUM_COLUMNS)
-        //     throw std::out_of_range("The column must be in the range [0, 9)");
-        // if (value < MIN_VALUE || value > MAX_VALUE)
-        //     throw std::out_of_range(
-        //         "The grid cell value must be in the range [1, 9]");
+        if (row < 0 || row >= NUM_COLUMNS)
+            throw std::out_of_range(
+                std::string("The row must be in the range[0, 9)"));
+        if (column < 0 || column >= NUM_COLUMNS)
+            throw std::out_of_range(
+                std::string("The column must be in the range [0, 9)"));
+        if (value < MIN_VALUE || value > MAX_VALUE)
+            throw std::out_of_range(
+                "The grid cell value must be in the range [1, 9]");
 
         grid_[row][column] = value;
     }
@@ -37,28 +40,31 @@ namespace sudoku
     // Tries to solve the grid, returns true if a solution is found
     bool Sudoku99::solve()
     {
-        PicoSAT* picosat = ::picosat_init();
-
-        // All possible values per cell
-        for (int vn = 1; vn <= MAX_VALUE; ++vn) 
-        {
-            for(int j = 0; j <= NUM_COLUMNS; ++j)
-            {
-                for(int i = 0; i <= NUM_ROWS; ++i)
-                {
-
-                }
-            }           
-        }
-
-        ::picosat_reset(picosat);
+        //addDontRepeatInColumnConstraints(picosat);
 
         return false;
     }
 
+
     //
     // Private
     //
+
+    void Sudoku99::addDontRepeatInColumnConstraints(void)
+    {
+        // All possible values per cell
+        for (int vn = 1; vn <= MAX_VALUE; ++vn)
+        {
+            int literals[NUM_ROWS];
+            for(int j = 0; j <= NUM_COLUMNS; ++j)
+            {
+                for(int i = 0; i <= NUM_ROWS; ++i)
+                {
+                    literals[i] = getLiteralForRowColumnValue(i, j, vn);
+                }
+            }
+        }
+    }
 
     int Sudoku99::getLiteralForRowColumnValue(int row, int column, int value)
     {
@@ -66,7 +72,7 @@ namespace sudoku
 
         if (rcv_lit_mapping_.count(rcv) < 1)
             createLiteralForRowColumnValue(rcv);
-        
+
         return rcv_lit_mapping_[rcv];
     }
 
