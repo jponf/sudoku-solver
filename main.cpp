@@ -1,4 +1,5 @@
 #include <iostream>
+#include <ifstream>
 #include <cstdlib>
 
 #include "sudoku99.hpp"
@@ -14,10 +15,22 @@ const int PRINT = 3;
 const int EXIT = 4;
 
 void printSudoku(const Sudoku99&);
+void printHelp(const char* path);
+void readSudokuFromFile(ifstream&);
 
 int main(int argc, char *argv[])
 {
 	Sudoku99 sudoku;
+
+    if (argc < 2)
+    {
+        printHelp(argv[0]);
+        eixt(-1);
+    }
+
+
+
+
     bool loop = true;
     int opt;
 
