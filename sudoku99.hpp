@@ -3,9 +3,10 @@
 #ifndef _SUDOKU99_H_
 #define _SUDOKU99_H_
 
-#include <vector>
-#include <utility>
 #include <map>
+#include <vector>
+#
+#include <utility>
 
 #include "solver.hpp"
 
@@ -27,14 +28,26 @@ namespace sudoku
         // Constructor
         Sudoku99();
 
+        // Destructor
+        virtual ~Sudoku99();
+
         /**
-         * \brief Sets the value of the grid cell (row, column).
+         * \brief Sets the value of the grid's cell (row, column).
          *
          * \throw std::out_of_range If any of the input parameters is out of
          *        the valid range. The different ranges are: row [0-9),
          *        column [0, 9), value [1, 9]
          */
         void setValue(int row, int column, int value);
+
+        /**
+         * \brief Gets the value of the grid's cell (row, column).
+         *
+         * \returns The cell value or UNDEFINED_VALUE if it is unspecified.
+         *
+         * \throw std::out_of_range If the (row, column) is out of the grid.
+         */
+        int getValue(int row, int column) const;
 
         /**
          * \brief Tries to solve the sudoku with the previous fixed values.
@@ -45,15 +58,18 @@ namespace sudoku
 
 
     private:
+        void addOnlyOneValuePerCellConstraints(void);
         void addDontRepeatInColumnConstraints(void);
         void addDontRepeatInRowConstraints(void);
         void addDontRepeatInSubRegionConstraints(void);
+        void addFixedValuesConstraints(void);
+        void setGridFromSolverProof(void);
 
         int getLiteralForRowColumnValue(int row, int column, int value);
         void createLiteralForRowColumnValue(const ROWCOLUMNVALUE& rcv);
         const ROWCOLUMNVALUE& getRowColumnValueForLiteral(int literal);
 
-        std::vector< std::vector<int> > grid_;
+        int **grid_;
 
         Solver solver_;
 

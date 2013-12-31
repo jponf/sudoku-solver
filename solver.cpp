@@ -1,5 +1,7 @@
 #include "solver.hpp"
 
+#include <iostream>
+
 namespace sudoku
 {
     const int Solver::DEF_DECISION_LIMIT = 1000;
@@ -20,12 +22,15 @@ namespace sudoku
     {
         int res = picosat_sat(picosat_, decision_limit);
         // 'PICOSAT_UNSATISFIABLE', 'PICOSAT_SATISFIABLE', or 'PICOSAT_UNKNOWN'.
-        if (res == PICOSAT_SATISFIABLE)
-            return SATISFIABLE;
-        else if (res == PICOSAT_UNSATISFIABLE)
-            return UNSATISFIABLE;
-        else
-            return UNKNOWN;
+        switch(res)
+        {
+            case PICOSAT_SATISFIABLE:
+                return SATISFIABLE;
+            case PICOSAT_UNSATISFIABLE:
+                return UNSATISFIABLE;
+            default:
+                return UNKNOWN;
+        }
     }
 
     void Solver::addClause(const std::vector<int>& literals)
@@ -36,9 +41,37 @@ namespace sudoku
             clause.push_back(0);
             // Get vector as array ()
             int *clause_arr = &clause[0];
+            for(std::vector<int>::iterator it = clause.begin();
+                it != clause.end(); ++it)
+                std::cerr << *it << " ";
+            std::cerr << std::endl;
 
             ::picosat_add_lits(picosat_, clause_arr);
         }
+    }
+
+    // Adds a clause to assume a literal value
+    void Solver::assumeLiteral(int literal)
+    {
+        ::picosat_add_arg(picosat_, literal, 0);
+    }
+
+    Solver::LITERAL_VALUE Solver::getLiteralValue(int literal) const
+    {
+        if (::picosat_res(picosat_) != PICOSAT_SATISFIABLE)
+            throw std::logic_error(
+                "Solve hasn't been called, or the previous call result has "
+                "been UNSATISFIABLE");
+
+        switch (::picosat_deref(picosat_, literal))
+        {
+            case 1:
+                return TRUE;
+            case -1:
+                return FALSE;
+            default:
+                return UNDEFINED;
+        } 
     }
 
     void Solver::addAtLeastOneConstraint(const std::vector<int>& literals)
@@ -51,12 +84,15 @@ namespace sudoku
         const size_t ilim = literals.size() - 1;
         const size_t jlim = literals.size();
 
-        for (size_t i = 0; i < literals.size() - 1; ++i)
+        for (size_t i = 0; i < ilim; ++i)
         {
-            for (size_t j = i + 1; j < literals.size(); ++j)
+            for (size_t j = i + 1; j < jlim; ++j)
             {
-                int clause[3] = { -literals[i], -literals[j], 0 };
-                ::picosat_add_lits(picosat_, clause);
+                int lits[2] = { -literals[i], -literals[j] };
+                std::vector<int> clause;
+                clause.assign(lits, lits + 2);
+
+                addClause(clause);
             }
         }
     }
