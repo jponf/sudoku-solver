@@ -12,6 +12,8 @@ namespace sudoku
     const int Sudoku99::MAX_VALUE = 9;
     const int Sudoku99::NUM_ROWS = 9;
     const int Sudoku99::NUM_COLUMNS = 9;
+    const int Sudoku99::SUBREGION_NUM_ROWS = 3;
+    const int Sudoku99::SUBREGION_NUM_COLUMNS = 3;
 
     // Constructor
     Sudoku99::Sudoku99()
@@ -38,11 +40,15 @@ namespace sudoku
     }
 
     // Tries to solve the grid, returns true if a solution is found
-    bool Sudoku99::solve()
+    Solver::SOLVE_RESULT Sudoku99::solve()
     {
-        //addDontRepeatInColumnConstraints(picosat);
+        addDontRepeatInColumnConstraints();
+        addDontRepeatInRowConstraints();
+        addDontRepeatInSubRegionConstraints();
 
-        return false;
+        Solver::SOLVE_RESULT res = solver_.solve();
+
+        return res;
     }
 
 
@@ -52,15 +58,59 @@ namespace sudoku
 
     void Sudoku99::addDontRepeatInColumnConstraints(void)
     {
+        std::vector<int> literals(NUM_ROWS, 0);
         // All possible values per cell
         for (int vn = 1; vn <= MAX_VALUE; ++vn)
         {
-            int literals[NUM_ROWS];
-            for(int j = 0; j <= NUM_COLUMNS; ++j)
+            for (int j = 0; j <= NUM_COLUMNS; ++j)
             {
-                for(int i = 0; i <= NUM_ROWS; ++i)
+                for (int i = 0; i <= NUM_ROWS; ++i)
                 {
                     literals[i] = getLiteralForRowColumnValue(i, j, vn);
+                }
+                solver_.addExactlyOneConstraint(literals);
+            }
+        }
+    }
+
+    void Sudoku99::addDontRepeatInRowConstraints(void)
+    {
+        std::vector<int> literals(NUM_ROWS, 0);
+        // All possible values per cell
+        for (int vn = 1; vn <= MAX_VALUE; ++vn)
+        {
+            for (int i = 0; i <= NUM_ROWS; ++i)
+            {
+                for (int j = 0; j <= NUM_COLUMNS; ++j)
+                {
+                    literals[i] = getLiteralForRowColumnValue(i, j, vn);
+                }
+                solver_.addExactlyOneConstraint(literals);
+            }
+        }
+    }
+
+    void Sudoku99::addDontRepeatInSubRegionConstraints(void)
+    {
+        std::vector<int> literals(
+            SUBREGION_NUM_ROWS * SUBREGION_NUM_COLUMNS, 0);
+
+        for (int nv = 1; nv <= MAX_VALUE; ++nv)
+        {
+            for (int si = 0; si <= NUM_ROWS; si += SUBREGION_NUM_ROWS)
+            {
+                for (int sj = 0; sj <= NUM_COLUMNS;
+                     sj += SUBREGION_NUM_COLUMNS)
+                {
+                    for (int i = si; i < SUBREGION_NUM_ROWS; ++i)
+                    {
+                        for (int j = sj; j < SUBREGION_NUM_COLUMNS; ++j)
+                        {
+                            literals[i * SUBREGION_NUM_ROWS + j] = 
+                                getLiteralForRowColumnValue(i, j, nv);
+                        }
+                    }
+                    solver_.addExactlyOneConstraint(literals);
                 }
             }
         }

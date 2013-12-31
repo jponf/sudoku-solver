@@ -7,6 +7,8 @@
 #include <utility>
 #include <map>
 
+#include "solver.hpp"
+
 namespace sudoku
 {
     class Sudoku99
@@ -19,6 +21,8 @@ namespace sudoku
         static const int MAX_VALUE;
         static const int NUM_ROWS;
         static const int NUM_COLUMNS;
+        static const int SUBREGION_NUM_ROWS;
+        static const int SUBREGION_NUM_COLUMNS;
 
         // Constructor
         Sudoku99();
@@ -37,19 +41,21 @@ namespace sudoku
          *
          * \returns true if the a solution is found, false otherwise
          */
-        bool solve();
+        Solver::SOLVE_RESULT solve();
 
 
     private:
         void addDontRepeatInColumnConstraints(void);
-        //void addNoSameNumberInRowConstraint(PicoSAT*);
-        //void addNoSameNumberPerSquareConstraint(PicoSAT*);
+        void addDontRepeatInRowConstraints(void);
+        void addDontRepeatInSubRegionConstraints(void);
 
         int getLiteralForRowColumnValue(int row, int column, int value);
         void createLiteralForRowColumnValue(const ROWCOLUMNVALUE& rcv);
         const ROWCOLUMNVALUE& getRowColumnValueForLiteral(int literal);
 
         std::vector< std::vector<int> > grid_;
+
+        Solver solver_;
 
         int last_literal;
         std::map<ROWCOLUMNVALUE, int> rcv_lit_mapping_;
