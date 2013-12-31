@@ -29,11 +29,19 @@ namespace sudoku
         virtual ~Solver();
 
         /**
+         * \brief Removes all the previously added clauses.
+         */
+        void clear();
+
+        /**
          * \brief Tries to Solve the defined formula.
+         *
+         * \param decision_limit Limits the number of decisions taken to solve
+         *        the formula. A negative value indicates infinite decisions.
          *
          * \return True if the formula is satisfiable, flase otherwise.
          */
-        SOLVE_RESULT solve();
+        SOLVE_RESULT solve(int decision_limit = DEF_DECISION_LIMIT);
 
         /**
          * \brief Adds the given literals as a clause.
@@ -80,7 +88,6 @@ namespace sudoku
         void addExactlyOneConstraint(const std::vector<int>& literals);
 
     private:
-        int decision_limit;
         PicoSAT* picosat_;
     };
 

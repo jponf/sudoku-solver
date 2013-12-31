@@ -7,7 +7,7 @@
 namespace sudoku
 {
     // Constants
-    const int Sudoku99::UNDEFINED_VALUE = -1;
+    const int Sudoku99::UNDEFINED_VALUE = 0;
     const int Sudoku99::MIN_VALUE = 1;
     const int Sudoku99::MAX_VALUE = 9;
     const int Sudoku99::NUM_ROWS = 9;

@@ -7,18 +7,25 @@ namespace sudoku
     const int Solver::DEF_DECISION_LIMIT = 1000;
 
     Solver::Solver() 
-        : picosat_(::picosat_init()),
-          decision_limit(DEF_DECISION_LIMIT)
+        : picosat_(::picosat_init())
     { }
 
     Solver::~Solver()
     {
-        picosat_reset(picosat_);
+        if (picosat_ != NULL)
+            ::picosat_reset(picosat_);
     }
 
     //--------
 
-    Solver::SOLVE_RESULT Solver::solve()
+    void Solver::clear()
+    {
+        if (picosat_ != NULL)
+            ::picosat_reset(picosat_);
+        picosat_ = ::picosat_init();
+    }
+
+    Solver::SOLVE_RESULT Solver::solve(int decision_limit)
     {
         int res = picosat_sat(picosat_, decision_limit);
         // 'PICOSAT_UNSATISFIABLE', 'PICOSAT_SATISFIABLE', or 'PICOSAT_UNKNOWN'.
@@ -33,6 +40,7 @@ namespace sudoku
         }
     }
 
+    // Adds the given literals as a clause
     void Solver::addClause(const std::vector<int>& literals)
     {
         if (!literals.empty())
@@ -41,10 +49,6 @@ namespace sudoku
             clause.push_back(0);
             // Get vector as array ()
             int *clause_arr = &clause[0];
-            for(std::vector<int>::iterator it = clause.begin();
-                it != clause.end(); ++it)
-                std::cerr << *it << " ";
-            std::cerr << std::endl;
 
             ::picosat_add_lits(picosat_, clause_arr);
         }

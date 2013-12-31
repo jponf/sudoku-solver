@@ -78,17 +78,50 @@ int main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
+void printColumnSeparator(const int column)
+{
+    if (column % Sudoku99::SUBREGION_NUM_COLUMNS) {
+        cout << "|";
+    } else {
+        cout << "‖";
+    }
+}
+
+void printRowSeparator(const int row)
+{
+    for (int k = 0; k < Sudoku99::NUM_COLUMNS; ++k)
+    {
+        printColumnSeparator(k);
+
+        if (row % Sudoku99::SUBREGION_NUM_ROWS) {
+            cout << "---";
+        } else {
+            cout << "===";
+        }       
+    }
+    printColumnSeparator(Sudoku99::NUM_COLUMNS);
+    cout << endl;
+}
+
 void printSudoku(const Sudoku99& sudoku)
 {
     for (int i = 0; i < Sudoku99::NUM_ROWS; ++i)
     {
-        cout << "| ";
+        // Row region Separator
+        printRowSeparator(i);
+
+        // Row numbers 
         for (int j = 0; j < Sudoku99::NUM_COLUMNS; ++j)
         {
-            cout << sudoku.getValue(i, j) << " |";
-            if (j != Sudoku99::NUM_COLUMNS - 1)
-                cout << " ";
+            printColumnSeparator(j);
+            cout << " " << sudoku.getValue(i, j) << " ";
         }
+        printColumnSeparator(Sudoku99::NUM_COLUMNS);
         cout << endl;
     }
+
+    // Last row Separator
+    printRowSeparator(Sudoku99::NUM_ROWS);
 }
+
+

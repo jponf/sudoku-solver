@@ -52,7 +52,7 @@ namespace sudoku
         /**
          * \brief Tries to solve the sudoku with the previous fixed values.
          *
-         * \returns true if the a solution is found, false otherwise
+         * \returns true if a solution is found, false otherwise
          */
         Solver::SOLVE_RESULT solve();
 
