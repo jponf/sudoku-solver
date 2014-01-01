@@ -1,12 +1,12 @@
-#include "solver.hpp"
+#include <stdexcept>
 
-#include <iostream>
+#include "solver.hpp"
 
 namespace sudoku
 {
     const int Solver::DEF_DECISION_LIMIT = 1000;
 
-    Solver::Solver() 
+    Solver::Solver()
         : picosat_(::picosat_init())
     { }
 
@@ -75,7 +75,7 @@ namespace sudoku
                 return FALSE;
             default:
                 return UNDEFINED;
-        } 
+        }
     }
 
     void Solver::addAtLeastOneConstraint(const std::vector<int>& literals)

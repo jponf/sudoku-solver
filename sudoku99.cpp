@@ -1,5 +1,5 @@
 #include <stdexcept>
-#include <iostream>
+#include <cstring>
 
 #include "sudoku99.hpp"
 #include "lib/picosat.h"
@@ -21,7 +21,7 @@ namespace sudoku
           rcv_lit_mapping_(),
           lit_rcv_mapping_(),
           last_literal(0)
-    { 
+    {
         grid_ = new int*[NUM_ROWS]();
         for (int i = 0; i < NUM_ROWS; ++i)
         {
@@ -96,7 +96,7 @@ namespace sudoku
             {
                 for (int vn = MIN_VALUE; vn <= MAX_VALUE; ++vn)
                 {
-                    literals[vn-MIN_VALUE] = 
+                    literals[vn-MIN_VALUE] =
                         getLiteralForRowColumnValue(i, j, vn);
                 }
                 solver_.addExactlyOneConstraint(literals);
@@ -155,7 +155,7 @@ namespace sudoku
                     {
                         for (int j = sj; j < sj + SUBREGION_NUM_COLUMNS; ++j)
                         {
-                            literals[++lit_index] = 
+                            literals[++lit_index] =
                                 getLiteralForRowColumnValue(i, j, nv);
                         }
                     }
