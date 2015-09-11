@@ -173,7 +173,12 @@ void printSudoku(const Sudoku99& sudoku)
         for (int j = 0; j < Sudoku99::NUM_COLUMNS; ++j)
         {
             printColumnSeparator(j);
-            cout << " " << sudoku.getValue(i, j) << " ";
+            int value = sudoku.getValue(i, j);
+            if (value == Sudoku99::UNDEFINED_VALUE) {
+                cout << "   ";
+            } else {
+                cout << " " << value << " ";
+            }
         }
         printColumnSeparator(Sudoku99::NUM_COLUMNS);
         cout << endl;
@@ -182,5 +187,3 @@ void printSudoku(const Sudoku99& sudoku)
     // Last row Separator
     printRowSeparator(Sudoku99::NUM_ROWS);
 }
-
-
