@@ -8,13 +8,16 @@
 
 #include <stdexcept>
 
-#include "sudoku99.hpp"
+#include "Sudoku.hpp"
+#include "SudokuOutputter.hpp"
+#include "SudokuFormattedOutputter.hpp"
 
 using namespace sudoku;
 
 //
 // Simple main to test the application (Must be changed in the future)
 //
+
 
 // Local types
 // --------------------------------------------------------
@@ -33,18 +36,20 @@ public:
     IOError(const std::string& what) : std::runtime_error(what) { }
 };
 
+
 // Function prototypes
 // --------------------------------------------------------
+void runSudokuSolver(const Options& opts);
 Options readParameters(int argc, char *argv[]);
+SudokuOutputter* createSudokuOutputter(const Options& opts, std::ostream& os);
 
 void printHelp(const char* bin_path);
-void printSudoku(std::ostream& ,const Sudoku99&);
+void loadSudoku(const Options&, Sudoku&);
+void loadSudoku(std::istream&, Sudoku&);
 
-void loadSudoku99(const Options&, Sudoku99&);
-void loadSudoku99(std::istream&, Sudoku99&);
 
-//
-
+// Functions
+// ----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -55,17 +60,28 @@ int main(int argc, char *argv[])
         return EXIT_SUCCESS;
     }
 
-    try {
-        Sudoku99 sudoku;
-        loadSudoku99(opts, sudoku);
+    runSudokuSolver(opts);
+    return EXIT_SUCCESS;
+}
 
-        if (opts.verbose) {
-            printSudoku(std::cerr, sudoku);
-        }
+
+void runSudokuSolver(const Options& opts)
+{
+    SudokuOutputter* outputter = createSudokuOutputter(opts, std::cout);
+
+    try {
+        Sudoku sudoku;
+        loadSudoku(opts, sudoku);
+
+        if (opts.verbose)
+            outputter->output(sudoku);
+
     } catch (const IOError& e) {
         std::cerr << "IO error captured. Error message:" << std::endl;
         std::cerr << e.what() << std::endl;
     }
+
+    delete outputter;
 
     /*if (verbose) {
         printSudoku(sudoku);
@@ -89,7 +105,6 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
     }*/
 
-    return EXIT_SUCCESS;
 }
 
 
@@ -127,6 +142,15 @@ Options readParameters(int argc, char* argv[])
 }
 
 
+SudokuOutputter* createSudokuOutputter(const Options& opts, std::ostream& stream)
+{
+    if (opts.simple_output)
+        return NULL;
+    return new SudokuFormattedOutputter(stream);
+}
+
+
+
 //
 void printHelp(const char* bin_path)
 {
@@ -149,22 +173,22 @@ void printHelp(const char* bin_path)
 //------------------------------------------------------------------------------
 //
 
-void loadSudoku99(const Options& opts, Sudoku99& sudoku)
+void loadSudoku(const Options& opts, Sudoku& sudoku)
 {
     if (opts.file_path.empty()) {
-        loadSudoku99(std::cin, sudoku);
+        loadSudoku(std::cin, sudoku);
     } else {
         std::ifstream file(opts.file_path);
         if (!file.is_open()) {
             throw IOError("Unable to open file: " + opts.file_path);
         }
 
-        loadSudoku99(file, sudoku);
+        loadSudoku(file, sudoku);
         file.close();
     }
 }
 
-void loadSudoku99(std::istream& is, Sudoku99& sudoku)
+void loadSudoku(std::istream& is, Sudoku& sudoku)
 {
    int row, column, value;
    int line = 0;
@@ -182,53 +206,4 @@ void loadSudoku99(std::istream& is, Sudoku99& sudoku)
             sudoku.setValue(--row, --column, value);
         }
     }
-}
-
-//------------------------------------------------------------------------------
-
-void printColumnSeparator(std::ostream& os, const int column)
-{
-    os << (column % Sudoku99::SUBREGION_NUM_COLUMNS ? "|" : "‖");
-}
-
-void printRowSeparator(std::ostream& os, const int row)
-{
-    for (int k = 0; k < Sudoku99::NUM_COLUMNS; ++k)
-    {
-        printColumnSeparator(os, k);
-
-        if (row % Sudoku99::SUBREGION_NUM_ROWS) {
-            os << "---";
-        } else {
-            os << "===";
-        }
-    }
-    printColumnSeparator(os, Sudoku99::NUM_COLUMNS);
-    std::cout << std::endl;
-}
-
-void printSudoku(std::ostream& os, const Sudoku99& sudoku)
-{
-    for (int i = 0; i < Sudoku99::NUM_ROWS; ++i)
-    {
-        // Row region Separator
-        printRowSeparator(os, i);
-
-        // Row numbers
-        for (int j = 0; j < Sudoku99::NUM_COLUMNS; ++j)
-        {
-            printColumnSeparator(os, j);
-            int value = sudoku.getValue(i, j);
-            if (value == Sudoku99::UNDEFINED_VALUE) {
-                os << "   ";
-            } else {
-                os << " " << value << " ";
-            }
-        }
-        printColumnSeparator(os, Sudoku99::NUM_COLUMNS);
-        os << std::endl;
-    }
-
-    // Last row Separator
-    printRowSeparator(os, Sudoku99::NUM_ROWS);
 }

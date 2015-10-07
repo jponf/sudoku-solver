@@ -1,21 +1,21 @@
 #include <stdexcept>
 #include <cstring>
 
-#include "sudoku99.hpp"
+#include "Sudoku.hpp"
 
 namespace sudoku
 {
     // Constants
-    const int Sudoku99::UNDEFINED_VALUE = 0;
-    const int Sudoku99::MIN_VALUE = 1;
-    const int Sudoku99::MAX_VALUE = 9;
-    const int Sudoku99::NUM_ROWS = 9;
-    const int Sudoku99::NUM_COLUMNS = 9;
-    const int Sudoku99::SUBREGION_NUM_ROWS = 3;
-    const int Sudoku99::SUBREGION_NUM_COLUMNS = 3;
+    const int Sudoku::UNDEFINED_VALUE = 0;
+    const int Sudoku::MIN_VALUE = 1;
+    const int Sudoku::MAX_VALUE = 9;
+    const int Sudoku::NUM_ROWS = 9;
+    const int Sudoku::NUM_COLUMNS = 9;
+    const int Sudoku::SUBREGION_NUM_ROWS = 3;
+    const int Sudoku::SUBREGION_NUM_COLUMNS = 3;
 
     // Constructor
-    Sudoku99::Sudoku99()
+    Sudoku::Sudoku()
         : grid_(NULL),
           last_literal(0),
           rcv_lit_mapping_(),
@@ -30,7 +30,7 @@ namespace sudoku
     }
 
     // Destructor
-    Sudoku99::~Sudoku99()
+    Sudoku::~Sudoku()
     {
         for (int i = 0; i < NUM_ROWS; ++i)
         {
@@ -40,7 +40,7 @@ namespace sudoku
     }
 
     // Set cell value
-    void Sudoku99::setValue(int row, int column, int value)
+    void Sudoku::setValue(int row, int column, int value)
     {
         if (row < 0 || row >= NUM_COLUMNS)
             throw std::out_of_range("The row must be in the range[0, 9)");
@@ -54,7 +54,7 @@ namespace sudoku
     }
 
     // Get cell value
-    int Sudoku99::getValue(int row, int column) const
+    int Sudoku::getValue(int row, int column) const
     {
         if (row < 0 || row >= NUM_COLUMNS)
             throw std::out_of_range("The row must be in the range[0, 9)");
@@ -65,7 +65,7 @@ namespace sudoku
     }
 
     // Tries to solve the grid, returns true if a solution is found
-    Solver::SOLVE_RESULT Sudoku99::solve()
+    Solver::SOLVE_RESULT Sudoku::solve()
     {
         addOnlyOneValuePerCellConstraints();
         addDontRepeatInColumnConstraints();
@@ -85,7 +85,7 @@ namespace sudoku
     //
     // Private
     //
-    void Sudoku99::addOnlyOneValuePerCellConstraints(void)
+    void Sudoku::addOnlyOneValuePerCellConstraints(void)
     {
         std::vector<int> literals(MAX_VALUE, 0);
 
@@ -103,7 +103,7 @@ namespace sudoku
         }
     }
 
-    void Sudoku99::addDontRepeatInColumnConstraints(void)
+    void Sudoku::addDontRepeatInColumnConstraints(void)
     {
         std::vector<int> literals(NUM_ROWS, 0);
         // All possible values per cell
@@ -120,7 +120,7 @@ namespace sudoku
         }
     }
 
-    void Sudoku99::addDontRepeatInRowConstraints(void)
+    void Sudoku::addDontRepeatInRowConstraints(void)
     {
         std::vector<int> literals(NUM_COLUMNS, 0);
         // All possible values per cell
@@ -137,7 +137,7 @@ namespace sudoku
         }
     }
 
-    void Sudoku99::addDontRepeatInSubRegionConstraints(void)
+    void Sudoku::addDontRepeatInSubRegionConstraints(void)
     {
         std::vector<int> literals(
             SUBREGION_NUM_ROWS * SUBREGION_NUM_COLUMNS, 0);
@@ -164,7 +164,7 @@ namespace sudoku
         }
     }
 
-    void Sudoku99::addFixedValuesConstraints(void)
+    void Sudoku::addFixedValuesConstraints(void)
     {
         for (int i = 0; i < NUM_ROWS; ++i)
         {
@@ -180,7 +180,7 @@ namespace sudoku
         }
     }
 
-    void Sudoku99::setGridFromSolverProof(void)
+    void Sudoku::setGridFromSolverProof(void)
     {
         std::map<int, ROWCOLUMNVALUE>::iterator map_it, end_it;
         end_it = lit_rcv_mapping_.end();
@@ -205,7 +205,7 @@ namespace sudoku
         }
     }
 
-    int Sudoku99::getLiteralForRowColumnValue(int row, int column, int value)
+    int Sudoku::getLiteralForRowColumnValue(int row, int column, int value)
     {
         ROWCOLUMNVALUE rcv = std::make_pair(std::make_pair(row, column), value);
 
@@ -215,7 +215,7 @@ namespace sudoku
         return rcv_lit_mapping_[rcv];
     }
 
-    void Sudoku99::createLiteralForRowColumnValue(const ROWCOLUMNVALUE& rcv)
+    void Sudoku::createLiteralForRowColumnValue(const ROWCOLUMNVALUE& rcv)
     {
         int new_lit = last_literal + 1;
         rcv_lit_mapping_[rcv] = new_lit;
@@ -223,7 +223,7 @@ namespace sudoku
         last_literal = new_lit;
     }
 
-    const Sudoku99::ROWCOLUMNVALUE& Sudoku99::getRowColumnValueForLiteral(
+    const Sudoku::ROWCOLUMNVALUE& Sudoku::getRowColumnValueForLiteral(
         int literal)
     {
         return lit_rcv_mapping_[literal];

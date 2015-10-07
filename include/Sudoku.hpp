@@ -12,7 +12,7 @@
 
 namespace sudoku
 {
-    class Sudoku99
+    class Sudoku
     {
     public:
         typedef std::pair<std::pair<int, int>, int> ROWCOLUMNVALUE;
@@ -26,10 +26,10 @@ namespace sudoku
         static const int SUBREGION_NUM_COLUMNS;
 
         // Constructor
-        Sudoku99();
+        Sudoku();
 
         // Destructor
-        virtual ~Sudoku99();
+        virtual ~Sudoku();
 
         /**
          * \brief Sets the value of the grid's cell (row, column).
