@@ -180,7 +180,7 @@ void loadSudoku(const Options& opts, Sudoku& sudoku)
                       << " */" << std::endl;
         loadSudoku(std::cin, sudoku);
     } else {
-        std::ifstream file(opts.file_path);
+        std::ifstream file(opts.file_path.c_str());
         if (!file.is_open()) {
             throw IOError("Unable to open file: " + opts.file_path);
         }
