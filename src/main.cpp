@@ -76,8 +76,26 @@ void runSudokuSolver(const Options& opts)
         Sudoku sudoku;
         loadSudoku(opts, sudoku);
 
-        if (opts.verbose)
+        if (opts.verbose) {
             outputter->output(sudoku);
+            std::cout << "/**" << std::endl << " * Solving ..."
+                      << std::endl << " */" << std::endl;
+        }
+
+        Solver::SOLVE_RESULT solve_res = sudoku.solve();
+
+        switch(solve_res) {
+            case Solver::SATISFIABLE:
+                outputter->output(sudoku);
+                break;
+            case Solver::UNSATISFIABLE:
+                std::cout << "Error: There is no solution for the given sudoku"
+                          << std::endl;
+                break;
+            default:
+                std::cout << "Error: Unexpectd solver result" << std::endl;
+                break;
+        }
 
     } catch (const IOError& e) {
         std::cerr << "IO error captured. Error message:" << std::endl;
@@ -85,29 +103,6 @@ void runSudokuSolver(const Options& opts)
     }
 
     delete outputter;
-
-    /*if (verbose) {
-        printSudoku(sudoku);
-        std::cerr << endl;
-    }
-
-    Solver::SOLVE_RESULT solve_res = sudoku.solve();
-
-    switch(solve_res)
-    {
-        case Solver::SATISFIABLE:
-            cout << "Solution found" << endl << endl;
-            printSudoku(sudoku);
-            return EXIT_SUCCESS;
-        case Solver::UNSATISFIABLE:
-            cout << "There isn't a solution with the given configuration"
-                << endl;
-            return EXIT_FAILURE;
-        default:
-            cout << "Unexpected solve result" << endl;
-            return EXIT_FAILURE;
-    }*/
-
 }
 
 
@@ -179,12 +174,20 @@ void printHelp(const char* bin_path)
 void loadSudoku(const Options& opts, Sudoku& sudoku)
 {
     if (opts.file_path.empty()) {
+        if (opts.verbose)
+            std::cout << "/**" << std::endl
+                      << " * Loading from standard output ..." << std::endl
+                      << " */" << std::endl;
         loadSudoku(std::cin, sudoku);
     } else {
         std::ifstream file(opts.file_path);
         if (!file.is_open()) {
             throw IOError("Unable to open file: " + opts.file_path);
         }
+        if (opts.verbose)
+            std::cout << "/**" << std::endl 
+                      << " * Loading from '" << opts.file_path << "'" 
+                      << std::endl << " */" << std::endl;
 
         loadSudoku(file, sudoku);
         file.close();
