@@ -11,8 +11,11 @@
 #include "Sudoku.hpp"
 #include "SudokuOutputter.hpp"
 #include "SudokuFormattedOutputter.hpp"
+#include "SudokuSimpleOutputter.hpp"
+
 
 using namespace sudoku;
+
 
 //
 // Simple main to test the application (Must be changed in the future)
@@ -145,7 +148,7 @@ Options readParameters(int argc, char* argv[])
 SudokuOutputter* createSudokuOutputter(const Options& opts, std::ostream& stream)
 {
     if (opts.simple_output)
-        return NULL;
+        return new SudokuSimpleOutputter(stream);
     return new SudokuFormattedOutputter(stream);
 }
 

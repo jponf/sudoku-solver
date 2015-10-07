@@ -1,6 +1,6 @@
 //
 // Author: Josep Pon Farreny
-// File: SudokuOutputter.cpp
+// File: SudokuFormattedOutputter.cpp
 //
 
 #include <iostream>
