@@ -4,7 +4,7 @@
 
 #include <iosfwd>
 
-#include "sudoku.hpp"
+#include "Sudoku.hpp"
 
 namespace sudoku
 {
