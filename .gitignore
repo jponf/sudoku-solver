@@ -1,6 +1,15 @@
 # OSX folder information
 .DS_store
 
+# Picosat binaries
+*picogcnf
+*picomcs
+*picomus
+*picosat
+
+# Build directory
+build/
+
 # Compiled Object files
 *.slo
 *.lo

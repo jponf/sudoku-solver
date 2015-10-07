@@ -2,7 +2,6 @@
 #include <cstring>
 
 #include "sudoku99.hpp"
-#include "lib/picosat.h"
 
 namespace sudoku
 {
@@ -18,9 +17,9 @@ namespace sudoku
     // Constructor
     Sudoku99::Sudoku99()
         : grid_(NULL),
+          last_literal(0),
           rcv_lit_mapping_(),
-          lit_rcv_mapping_(),
-          last_literal(0)
+          lit_rcv_mapping_()
     {
         grid_ = new int*[NUM_ROWS]();
         for (int i = 0; i < NUM_ROWS; ++i)

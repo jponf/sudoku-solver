@@ -4,7 +4,7 @@
 
 #include <vector>
 
-#include "lib/picosat.h"
+#include "picosat.h"
 
 namespace sudoku
 {
