@@ -60,7 +60,7 @@ $(RBINARY): $(ROBJS)
 $(DBINARY): $(DOBJS)
 
 ## Compile options
-$(ROBJDIR)/%.o: CXXFLAGS += -Os -DNDEBUG
+$(ROBJDIR)/%.o: CXXFLAGS += -O3 -DNDEBUG
 $(DOBJDIR)/%.o: CXXFLAGS += -O0 -g
 
 ## Link options

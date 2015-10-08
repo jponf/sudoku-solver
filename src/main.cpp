@@ -98,8 +98,9 @@ void runSudokuSolver(const Options& opts)
         }
 
     } catch (const IOError& e) {
-        std::cerr << "IO error captured. Error message:" << std::endl;
-        std::cerr << e.what() << std::endl;
+        std::cout << "Error: IO error '" << e.what() << "'" << std::endl;
+    } catch (const std::out_of_range& e) {
+        std::cout << "Error: " << e.what() << std::endl;
     }
 
     delete outputter;
