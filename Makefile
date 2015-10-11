@@ -40,10 +40,8 @@ DOBJS := $(addprefix $(DOBJDIR)/, $(CCOBJS))
 INC_PATHS := -I$(INCDIR) -I$(LIBDIR)/picosat
 LIB_PATHS := -L$(LIBDIR) -L$(LIBDIR)/picosat
 
-LIBS := -lpicosat
-
-CXXFLAGS = -Wall -Wextra $(INC_PATHS)
-LDFLAGS = -Wall $(LIB_PATHS) $(LIBS)
+CXXFLAGS := -Wall -Wextra $(INC_PATHS)
+LDFLAGS  := -Wall $(LIB_PATHS) -lpicosat
 
 ## Special rules
 .PHONY: all clean mkdir-release mkdir-debug
@@ -77,7 +75,7 @@ $(ROBJDIR)/%.o $(DOBJDIR)/%.o: %.cpp $(CCHDRS)
 $(RBINARY) $(DBINARY):
 	@echo "Linking: $@"
 	@echo "  Flags: $(LDFLAGS)"
-	@$(CXX) $^ $(LDFLAGS) -o $@
+	$(CXX) $^ $(LDFLAGS) -o $@
 
 # Help rules
 mkdir-release:
