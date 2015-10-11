@@ -1,6 +1,6 @@
 #include <stdexcept>
 
-#include "solver.hpp"
+#include "Solver.hpp"
 
 namespace sudoku
 {

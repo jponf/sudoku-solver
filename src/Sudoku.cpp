@@ -1,5 +1,7 @@
-#include <stdexcept>
 #include <cstring>
+#include <ctime>
+
+#include <stdexcept>
 
 #include "Sudoku.hpp"
 
@@ -17,6 +19,7 @@ namespace sudoku
     // Constructor
     Sudoku::Sudoku()
         : grid_(NULL),
+          solver_(::time(NULL)),  // Randomly initialize the solver
           last_literal(0),
           rcv_lit_mapping_(),
           lit_rcv_mapping_()
