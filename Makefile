@@ -37,7 +37,7 @@ ROBJS := $(addprefix $(ROBJDIR)/, $(CCOBJS))
 DOBJS := $(addprefix $(DOBJDIR)/, $(CCOBJS))
 
 # Flags
-INC_PATHS := -I$(INCDIR)
+INC_PATHS := -I$(INCDIR) -I$(LIBDIR)/picosat
 LIB_PATHS := -L$(LIBDIR) -L$(LIBDIR)/picosat
 
 LIBS := -lpicosat
