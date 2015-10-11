@@ -37,7 +37,7 @@ ROBJS := $(addprefix $(ROBJDIR)/, $(CCOBJS))
 DOBJS := $(addprefix $(DOBJDIR)/, $(CCOBJS))
 
 # Flags
-INC_PATHS := -I$(INCDIR) -I$(LIBDIR)/picosat
+INC_PATHS := -I$(INCDIR)
 LIB_PATHS := -L$(LIBDIR) -L$(LIBDIR)/picosat
 
 CXXFLAGS := -Wall -Wextra $(INC_PATHS)
@@ -75,7 +75,7 @@ $(ROBJDIR)/%.o $(DOBJDIR)/%.o: %.cpp $(CCHDRS)
 $(RBINARY) $(DBINARY):
 	@echo "Linking: $@"
 	@echo "  Flags: $(LDFLAGS)"
-	$(CXX) $^ $(LDFLAGS) -o $@
+	@$(CXX) $^ $(LDFLAGS) -o $@
 
 # Help rules
 mkdir-release:
