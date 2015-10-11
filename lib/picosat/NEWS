@@ -1,5 +1,19 @@
-news for release 957 since 953
+news for release 960 since 959
 ------------------------------
+
+* fixed various issues pointed out by Stefan Hengelein:
+  - fixed incremental usage of 'picosat_adjust'
+  - added CPP fixes (STATS, NO_BINARY_CLAUSE versus TRACE mix-ups)
+  - removed redundant explicit set to zero on reset
+* fixed various usage bugs with 'picomus' (thanks to Stefan Hengelein)
+* removed '-fno-strict-aliasing' (thanks to Jerry James)
+
+news for release 959 since 953
+------------------------------
+
+* fixed header comments
+
+* fixed minor compilation issues
 
 * fixed unitialized memory access problem for 'picosat_deref_partial'
   and another issue with partial models

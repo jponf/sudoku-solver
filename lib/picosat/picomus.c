@@ -1,5 +1,5 @@
 /****************************************************************************
-Copyright (c) 2011-2012, Armin Biere, Johannes Kepler University.
+Copyright (c) 2011-2014, Armin Biere, Johannes Kepler University.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to
@@ -34,7 +34,7 @@ IN THE SOFTWARE.
 
 typedef struct Cls { int lit, red, * lits; } Cls;
 
-static int verbose = 1, nowitness;
+static int verbose, nowitness;
 static int fclose_input, pclose_input, close_output;
 static FILE * input_file, * output_file;
 static const char * input_name, * output_name;
@@ -66,6 +66,7 @@ static void msg (int level, const char * fmt, ...) {
 
 static void warn (const char * fmt, ...) {
   va_list ap;
+  if (verbose < 0) return;
   fputs ("c [picomus] WARNING: ", stdout);
   va_start (ap, fmt);
   vfprintf (stdout, fmt, ap);
@@ -150,7 +151,7 @@ static void callback (void * dummy, const int * mus) {
   int remaining;
   const int * p;
   (void) dummy;
-  if (!verbose) return;
+  if (verbose <= 0) return;
   remaining = 0;
   for (p = mus; *p; p++) remaining++;
   assert (remaining <= nclauses);
@@ -160,6 +161,47 @@ static void callback (void * dummy, const int * mus) {
        remaining, percent (remaining, nclauses), nclauses,
        picosat_time_stamp () - start);
 }
+
+static const char * USAGE =
+"picomus [-h][-v][-q] [ <input> [ <output> ] ]\n"
+"\n"
+"  -h  print this command line option summary\n"
+"  -v  increase verbosity level (default 0 = no messages)\n"
+"  -q  be quiet (no warnings nor messages)\n"
+"\n"
+"This tool is a SAT solver that uses the PicoSAT library to\n"
+"generate a 'minimal unsatisfiable core' also known as 'minimal\n"
+"unsatisfiable set' (MUS) of a CNF in DIMACS format.\n"
+"\n"
+"Both file arguments can be \"-\" and then denote <stdin> and\n"
+"<stdout> respectively.  If no input file is given <stdin> is used.\n"
+"If no output file is specified the MUS is computed and only printed\n"
+"to <stdout> in the format of the SAT competition 2011 MUS track.\n"
+"\n"
+"Note, that the 's ...' lines and in case the instance is satisfiable\n"
+"also the 'v ...' lines for the satisfying assignment are always\n"
+"printed to <stdout> (or not printed at all with '-q').\n"
+"\n"
+"If '-n' is specified satisfying assignment and MUS printing\n"
+"on <stdout> (using the 'v ...' format) is suppressed.\n"
+"The 's ...' line is still printed unless '-q' is specified.\n"
+"If <output> is specified an MUS is written to this file,\n"
+"even if '-n' or '-q' is used.\n"
+"\n"
+#ifndef TRACE
+"WARNING: PicosSAT is compiled without trace support.\n"
+"\n"
+"This typically slows down this MUS extractor, since\n"
+"it only relies on clause selector variables and\n"
+"can not make use of core extraction.  To enable\n"
+"trace generation use './configure --trace' or\n"
+"'./configure -O --trace' when building PicoSAT.\n"
+#else
+"Since trace generation code is included, this binary\n"
+"uses also core extraction in addition to clause selector\n"
+"variables.\n"
+#endif
+;
 
 int main (int argc, char ** argv) {
   int i, * p, n, oldn, red, nonred, res, round, printed, len;
@@ -173,41 +215,17 @@ int main (int argc, char ** argv) {
   start = picosat_time_stamp ();
   for (i = 1; i < argc; i++) {
     if (!strcmp (argv[i], "-h")) {
-      printf (
-        "picomus [-v][-h][-a][<input>[<output>]]\n"
-        "\n"
-	"This tool is a SAT solver that uses the PicoSAT library to\n"
-	"generate a 'minimal unsatisfiable core' also known as 'minimal\n"
-	"unsatisfiable set' (MUS) of a CNF in DIMACS format.\n"
-        "\n"
-        "Both file arguments can be \"-\" and then denote <stdin> resp.\n"
-        "<stdout>.  If no input file is given <stdin> is used.  If no\n"
-	"output file is specified the MUS is computed and only printed\n"
-	"to <stdout> in the format of the SAT competition 2011 MUS track.\n"
-	"\n"
-	"If '-n' is specified solution respectively MUS printing\n"
-	"on <stdout> (using the 'v ...' format) is suppressed.\n"
-	"If <output> is specified an MUS is written to this file,\n"
-	"even if '-n' is used.\n"
-	"\n"
-#ifndef TRACE
-	"WARNING: PicosSAT is compiled without trace support.\n"
-	"\n"
-	"This typically slows down this MUS extractor, since\n"
-	"it only relies on clause selector variables and\n"
-	"can not make use of core extraction.  To enable\n"
-	"trace generation use './configure --trace' or\n"
-	"'./configure -O --trace' when building PicoSAT.\n"
-#else
-	"Since trace generation code is included, this binary\n"
-	"uses also core extraction in addition to clause selector\n"
-	"variables.\n"
-#endif
-	);
+      fputs (USAGE, stdout);
       exit (0);
-    } else if (!strcmp (argv[i], "-v")) verbose++;
-    else if (!strcmp (argv[i], "-n")) nowitness = 1;
-    else if (argv[i][0] == '-') 
+    } else if (!strcmp (argv[i], "-v")) {
+      if (verbose < 0) die ("'-v' option after '-q'");
+      verbose++;
+    } else if (!strcmp (argv[i], "-q")) {
+      if (verbose < 0) die ("two '-q' options");
+      if (verbose > 0) die ("'-q' option after '-v'");
+      verbose = -1;
+    } else if (!strcmp (argv[i], "-n")) nowitness = 1;
+    else if (argv[i][0] == '-' && argv[i][1]) 
       die ("invalid command line option '%s'", argv[i]);
     else if (output_name) die ("too many arguments");
     else if (!input_name) input_name = argv[i];
@@ -268,8 +286,9 @@ int main (int argc, char ** argv) {
       if (!printed) {
 	assert (round == 1);
 	printed = 1;
-	printf ("s UNSATISFIABLE\n");
-	fflush (stdout);
+	if (verbose >= 0)
+	  printf ("s UNSATISFIABLE\n"),
+	  fflush (stdout);
       }
       for (i = 0; i < nclauses; i++) {
 	c = clauses + i;
@@ -327,7 +346,8 @@ int main (int argc, char ** argv) {
   }
   res = picosat_sat (ps, -1);
   if (res == 20) {
-    if (!printed) printf ("s UNSATISFIABLE\n"), fflush (stdout);
+    if (!printed && verbose >= 0)
+      printf ("s UNSATISFIABLE\n"), fflush (stdout);
     for (i = 0; i < nclauses; i++) clauses[i].red = 1;
     q = picosat_mus_assumptions (ps, 0, callback, 1);
     while ((i = *q++)) {
@@ -338,21 +358,23 @@ int main (int argc, char ** argv) {
   } else {
 SAT:
     assert (res == 10);
-    printf ("s SATISFIABLE\n"); fflush (stdout);
-    if (!nowitness) {
+    if (!printed && verbose >= 0)
+      printf ("s SATISFIABLE\n"), fflush (stdout);
+    if (!nowitness && verbose >= 0) {
       for (i = 1; i <= nvars; i++)
 	printf ("v %d\n", ((picosat_deref (ps, i) < 0) ? -1 : 1) * i);
       printf ("v 0\n");
     }
   }
-  if (verbose) picosat_stats (ps);
+  if (verbose > 0) picosat_stats (ps);
   picosat_reset (ps);
   n = 0;
   for (i = 0; i < nclauses; i++) if (!clauses[i].red) n++;
   red = nclauses - n;
   msg (1, "found %d redundant clauses %.0f%%", red, percent (red, nclauses));
-  msg (0, "computed MUS of size %d out of %d (%.0f%%)",
-       n, nclauses, percent (n, nclauses));
+  if (res == 20)
+    msg (0, "computed MUS of size %d out of %d (%.0f%%)",
+	 n, nclauses, percent (n, nclauses));
   if (output_name && strcmp (output_name, "-")) {
     output_file = fopen (output_name, "w");
     if (!output_file) die ("can not write '%s'", output_name);
@@ -368,7 +390,7 @@ SAT:
     if (close_output) fclose (output_file);
   } 
   if (res == 20) {
-    if (!nowitness) {
+    if (!nowitness && verbose >= 0) {
       for (i = 0; i < nclauses; i++)
 	if (!clauses[i].red) printf ("v %d\n", i+1);
       printf ("v 0\n");
