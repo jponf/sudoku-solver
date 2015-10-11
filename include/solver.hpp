@@ -26,6 +26,11 @@ namespace sudoku
         /**
          *
          */
+        Solver(int seed);
+
+        /**
+         *
+         */
         virtual ~Solver();
 
         /**

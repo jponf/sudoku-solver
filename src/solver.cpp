@@ -10,6 +10,12 @@ namespace sudoku
         : picosat_(::picosat_init())
     { }
 
+    Solver::Solver(int seed)
+        : picosat_(::picosat_init())
+    { 
+        ::picosat_set_seed(picosat_, seed);
+    }
+
     Solver::~Solver()
     {
         if (picosat_ != NULL)
