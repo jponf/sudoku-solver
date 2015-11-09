@@ -18,7 +18,7 @@ using namespace sudoku;
 
 
 //
-// Simple main to test the application (Must be changed in the future)
+// Simple main to test the sudoku solver
 //
 
 
@@ -51,8 +51,19 @@ void loadSudoku(const Options&, Sudoku&);
 void loadSudoku(std::istream&, Sudoku&);
 
 
+// Local utility inline functions
+// -----------------------------------------------------------------------------
+
+#define coutln(X) (std::cout << X << std::endl)
+
+inline bool streq(const char* str1, const char* str2)
+{
+    return strcmp(str1, str2) == 0;
+}
+
+
 // Functions
-// ----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -120,17 +131,16 @@ Options readParameters(int argc, char* argv[])
 
     // argument parsing
     for (int i = 1; i < argc; ++i) {
-        if (strcmp("-h", argv[i]) == 0 || strcmp("--help", argv[i]) == 0) {
+        if (streq("-h", argv[i]) || streq("--help", argv[i])) {
             opts.help = true;
-            break;
-        } else if (strcmp("-v", argv[i]) == 0) {
+        } else if (streq("-v", argv[i]) || streq("--verbose", argv[i])) {
             opts.verbose = true;
-        } else if (strcmp("-s", argv[i]) == 0) {
+        } else if (streq("-s", argv[i]) || streq("--simple", argv[i])) {
             opts.simple_output = true;
         } else {
             if (!opts.file_path.empty()) {
-                std::cerr << "Warning: More than one file specified ... using the first one."
-                          << std::endl;
+                std::cerr << "Warning: More than one file specified ..."
+                             " using the first one." << std::endl;
             } else {
                 opts.file_path = std::string(argv[i]);
             }
@@ -153,19 +163,27 @@ SudokuOutputter* createSudokuOutputter(const Options& opts, std::ostream& stream
 //
 void printHelp(const char* bin_path)
 {
-    std::cout << "Usage: " << bin_path << " [Options]" << std::endl;
+    coutln("Usage: " << bin_path << " [Options] [sudoku_file]");
+
     std::cout << std::endl;
-    std::cout << "\tOptions:" << std::endl;
-    std::cout << "\t\t-h/--help\tprint this message and exits." << std::endl;
-    std::cout << "\t\t-v\t\tprints execution information." << std::endl;
-    std::cout << "\t\tsudoku_file\tfile with the sudoku initial values." << std::endl;
+    coutln("\tOptions:");
+    coutln("\t\t-h/--help     print this message and exit.");
+    coutln("\t\t-v/--verbose  print additional execution information.");
+
     std::cout << std::endl;
-    std::cout << "sudoku_file format:" << std::endl;
+    //coutln("\t\t-a/--all      computes all the possible solutions [TODO].");
+    coutln("\t\t-s/--simple   print sudoku without formatting.");
+    coutln("\t\tsudoku_file   file with the sudoku initial values.");
+    coutln("\t\t              If not specified reads from the standard input.");
+
     std::cout << std::endl;
-    std::cout << "\tThe sudoku grid starts at the top left cell (1, 1)" << std::endl;
-    std::cout << "\tand finishes at the bottom right cell (9, 9)." << std::endl << std::endl;
-    std::cout << "\tThe file must be composed by lines with the following format:" << std::endl;
-    std::cout << "\t\t<row> <column> value" << std::endl;
+    coutln("sudoku_file format:");
+    std::cout << std::endl;
+    coutln("\tThe sudoku grid starts at the top left cell (1, 1)");
+    coutln("\tand finishes at the bottom right cell (9, 9).");
+    std::cout << std::endl;
+    coutln("\tThe file must be composed by lines with the following format:");
+    coutln("\t\t<row> <column> value");
 }
 
 
